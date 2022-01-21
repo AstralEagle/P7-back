@@ -1,14 +1,19 @@
+require('dotenv').config({path: './config/.env'})
 const database = require('../config/DB');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 
 const db = database.getDB();
 
 
 exports.signup = (req, res, next) => {
+    console.log('signup');
     if(!req.body.password | !req.body.name | !req.body.last_name |!req.body.email) {
         res.status(400).send({error: 'Missing input'});
     }else{
+        console.log(req.body)
         bcrypt.hash(req.body.password, 10)
         .then(hash => {
         const request = "INSERT INTO user SET ?";
@@ -24,7 +29,7 @@ exports.signup = (req, res, next) => {
                     res.status(400).send({error: 'Internal error'});
                     
                 }else{
-                    res.status(200).send({error: 'User create'});
+                    res.status(200).send({message: 'User create'});
                     
                 }
             })
@@ -38,17 +43,25 @@ exports.login = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT password FROM user WHERE 'email' = ?";
+        const request = "SELECT password, id FROM user WHERE 'email' = ?";
         const values = {email: req.body.email};
         db.query(request,values,(err,result) => {
             if(!result){
                 res.status(400).send({error: 'Utilisateur incorrect'});
                 
             }else{
-                bcrypt.compare(req.body.password, result[0].password)
+                user = result[0];
+                bcrypt.compare(req.body.password, user.password)
                 .then(result => {
-                    console.log("Connexion");
-                    res.status.json({success : "login"})
+                    res.status(200).json({
+                        userID : user.id,
+                        token: jwt.sign(
+                            {userID: user.id},
+                            process.env.KEYTOKEN,
+                            {expiresIn: '24h' }
+                        )
+                    })
+
                 })
                 .catch(err => res.status(400).send({error:"Mot de passe incorrect"}))
             }
