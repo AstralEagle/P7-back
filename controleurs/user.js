@@ -16,7 +16,7 @@ exports.signup = (req, res, next) => {
         console.log(req.body)
         bcrypt.hash(req.body.password, 10)
         .then(hash => {
-        const request = "INSERT INTO user SET ?";
+        const request = "INSERT INTO groupomania.user SET ?";
         const values = {
             name:       req.body.name,
             last_name:  req.body.last_name,
@@ -43,7 +43,7 @@ exports.login = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT password, id FROM user WHERE 'email' = ?";
+        const request = "SELECT password, id FROM groupomania.user WHERE 'email' = ?";
         const values = {email: req.body.email};
         db.query(request,values,(err,result) => {
             if(!result){
@@ -53,6 +53,7 @@ exports.login = (req, res, next) => {
                 user = result[0];
                 bcrypt.compare(req.body.password, user.password)
                 .then(result => {
+                    console.log('connect')
                     res.status(200).json({
                         userID : user.id,
                         token: jwt.sign(
@@ -70,7 +71,7 @@ exports.login = (req, res, next) => {
 };
 exports.getUser = (req, res, next) => {
     console.log("getUser");
-    if (!req.query.id) {
+    if (!req.params.id) {
         res.status(400).send({error: 'Missing input'});
     }
     else{
@@ -87,6 +88,26 @@ exports.getUser = (req, res, next) => {
     }
 };
 exports.deleteUser = (req, res, next) => {
-    
+    const sqlOne = "SELECT * FROM user WHERE id = ?";
+    const values = {
+        id : req.body.userID
+    }
+    db.query(sqlOne,values,(err,result) => {
+        if(err){
+            res.status(400).send({error: err})
+        }
+        if (result[0].id == res.params.id || result[0].op == 1) {
+            const sqlDelet = "DELETE FROM user WHERE id = ?";
+            const values = req.params.id;
+            db.query(sqlDelet,values,(err,result) =>{
+                if(err){
+                    res.status(400).send({error: err})
+                }
+                else{
+                    res.status(200).json({message : "Succes Delete"})
+                }
+            })
+        }
+    })
 
 };

@@ -5,6 +5,7 @@ var nbrRequests = 0;
 const app = express();
 const userRoute = require('./route/user');
 const postRoute = require('./route/post');
+const auth = require('./midleware/auth')
 
 app.use(express.json());
 app.use((req,res,next)=>{
@@ -18,10 +19,15 @@ app.use((req,res,next)=>{
 
 app.use('/api/test',(req,res,next) => {
     console.log('Test')
-    console.log(req.headers);
+    console.log(req.headers.authorization);
+    res.status(200).end();
 });
 app.use('/api/auth',userRoute);
 app.use('/api/post',postRoute);
+app.get('/api/connect',auth,(req,res)=>{
+    
+        res.status(200).json({succes : "Connected"});
+})
 
 
 
