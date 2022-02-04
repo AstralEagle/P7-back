@@ -43,7 +43,7 @@ exports.login = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT password, id FROM groupomania.user WHERE 'email' = ?";
+        const request = "SELECT password, id FROM groupomania.user WHERE ?";
         const values = {email: req.body.email};
         db.query(request,values,(err,result) => {
             if(!result){
@@ -53,7 +53,7 @@ exports.login = (req, res, next) => {
                 user = result[0];
                 bcrypt.compare(req.body.password, user.password)
                 .then(result => {
-                    console.log('connect')
+                    console.log("user "+user.id+" log")
                     res.status(200).json({
                         userID : user.id,
                         token: jwt.sign(
@@ -75,13 +75,14 @@ exports.getUser = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT name, last_name, post, date FROM user WHERE id = ?";
-        const values = req.query.id;
-        db.query(request,values,(err,result) => {
+        const request = "SELECT name, last_name, post, date FROM groupomania.user WHERE ?";
+        const value = {
+            id : req.params.id
+        }
+        db.query(request,value,(err,result) => {
             if(!result){
                 res.status(400).send({error: 'Utilisateur non trouvé'});
             }else{
-                console.log(result);
                 res.status(200).json(result[0])
             }
         });

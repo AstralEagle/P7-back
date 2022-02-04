@@ -5,9 +5,10 @@ const control = require("../controleurs/user");
 
 router.post('/signup', control.signup);
 router.post('/login',control.login);
-router.get('/', control.getUser);
+router.get('/:id', control.getUser);
 router.delete('/:id');
 router.put('/:id')
+
 
 
 module.exports = router;

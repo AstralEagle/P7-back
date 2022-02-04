@@ -34,11 +34,22 @@ exports.postMessage = (req, res, next) => {
     }
 }
 exports.getMessageById = (req,res,next) => {
-    console.log('getMessage',req.params.id)
+    const idUser = req.headers.authorization.split(" ")[2];
+    console.log(idUser)
     const request = "SELECT * FROM groupomania.like WHERE id_post = ?";
     db.query(request,req.params.id,(err,result) => {
-        console.log(result, result.length)
-        res.status(200).json(result.length)
+        const findlike = result.find(u => u.id_user == idUser );
+        console.log(findlike)
+        if(findlike != null) {
+            console.log("like")
+            res.status(200).json({
+                nbrLike : result.length,
+                isLike : true
+            })
+        }
+        else{
+            res.status(200).json({nbrLike : result.length})
+        }
     })
 }
 
@@ -52,11 +63,13 @@ exports.likeMessage = (req, res, next) => {
     else{
         const sqlOne = " SELECT * FROM groupomania.like WHERE id_post = ? AND id_user = ?"
         const values = [parseInt(req.params.id), parseInt(req.body.userID)]
+        console.log(values)
         db.query(sqlOne,values,(err,result) => {
             if (err) {
                 res.status(400).json({error: err})
             }
-            if(result.length == 0){
+            console.log("Like trouver pour l'id "+req.body.userID+" est de "+result.length);
+            if(result.length === 0){
                 console.log('add like')
                 const sqlCreate = "INSERT INTO groupomania.like SET ?"
                 const valuesCreate = {
@@ -66,7 +79,7 @@ exports.likeMessage = (req, res, next) => {
                 db.query(sqlCreate,valuesCreate,(err,result) => {
                     console.log("Succes Create");
                     if(!err)
-                    res.status(200).json({message : "Like"})
+                    res.status(200).json({isLike: true})
                 })
             }
             else if(result.length == 1){
@@ -78,7 +91,7 @@ exports.likeMessage = (req, res, next) => {
                 db.query(sqlDelet,valuesDelet,(err,result) => {
                     console.log("Succes Remove");
                     if(!err)
-                    res.status(200).json({message:"Unlike"})
+                    res.status(200).json({isLike:false})
                 })
             }
         })
@@ -89,5 +102,4 @@ exports.commentMessage = (req, res, next) => {
 
 }
 exports.getMessageUser = (req, res, next) => {
-
 }
