@@ -17,7 +17,7 @@ module.exports = (req,res, next) => {
       },
     ];
     db.query(sql, value, (err, result) =>{
-        if(err) {
+        if(!result[0] || err) {
             res.status(404).json({error: 'Pas d\'acces'});
         }
         else{

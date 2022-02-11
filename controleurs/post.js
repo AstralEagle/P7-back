@@ -1,6 +1,4 @@
-const res = require('express/lib/response');
 const database = require('../config/DB');
-
 
 const db = database.getDB();
 
@@ -34,10 +32,14 @@ exports.postMessage = (req, res, next) => {
     }
 }
 exports.getMessageById = (req,res,next) => {
+    console.log("GetLike")
     const idUser = req.headers.authorization.split(" ")[2];
     console.log(idUser)
-    const request = "SELECT * FROM groupomania.like WHERE id_post = ?";
-    db.query(request,req.params.id,(err,result) => {
+    const request = "SELECT * FROM groupomania.like WHERE ?";
+    const value = {id_post : req.params.id}
+    db.query(request,value,(err,result) => {
+        console.log(result)
+        console.log(err)
         const findlike = result.find(u => u.id_user == idUser );
         console.log(findlike)
         if(findlike != null) {

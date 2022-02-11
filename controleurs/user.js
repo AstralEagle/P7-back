@@ -9,33 +9,32 @@ const db = database.getDB();
 
 
 exports.signup = (req, res, next) => {
-    console.log('signup');
-    if(!req.body.password | !req.body.name | !req.body.last_name |!req.body.email) {
-        res.status(400).send({error: 'Missing input'});
-    }else{
-        console.log(req.body)
-        bcrypt.hash(req.body.password, 10)
-        .then(hash => {
-        const request = "INSERT INTO groupomania.user SET ?";
-        const values = {
-            name:       req.body.name,
-            last_name:  req.body.last_name,
-            date:       new Date(Date.now()),
-            password:   hash,
-            email:      req.body.email
-        };
-            db.query(request,values,(err,result) => {
-                if(!result){
-                    res.status(400).send({error: 'Internal error'});
-                    
-                }else{
-                    res.status(200).send({message: 'User create'});
-                    
-                }
-            })
-        })
-        .catch(err => res.status(500).json({error: err.message}));
-    }   
+  console.log("signup");
+  if (
+    !req.body.password |
+    !req.body.name |
+    !req.body.last_name |
+    !req.body.email
+  ) {
+    res.status(400).send({ error: "Missing input" });
+  }
+  const sql = 'SELECT * FROM user WHERE ?'
+  const value = { email : req.body.email}
+  console.log('preVerif Email : ', value)
+  db.query(sql, value, (err, result) => {
+      if(err){
+          console.log(err)
+          res.status(500).json({ error: err})
+      }
+      else if(result[0]){
+          console.log(result[0])
+          res.status(400).json({error : 'Email is already used'})
+      }
+      else{
+          addUser(req.body,res)
+        }
+      })
+      
 };
 exports.login = (req, res, next) => {
     console.log("login");
@@ -43,10 +42,10 @@ exports.login = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT password, id FROM groupomania.user WHERE ?";
+        const request = "SELECT password, id FROM user WHERE ?";
         const values = {email: req.body.email};
         db.query(request,values,(err,result) => {
-            if(!result){
+            if(!result[0]){
                 res.status(400).send({error: 'Utilisateur incorrect'});
                 
             }else{
@@ -75,13 +74,15 @@ exports.getUser = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT name, last_name, post, date FROM groupomania.user WHERE ?";
+        const request = "SELECT name, last_name, post, date FROM user WHERE ?";
         const value = {
             id : req.params.id
         }
         db.query(request,value,(err,result) => {
-            if(!result){
-                res.status(400).send({error: 'Utilisateur non trouvé'});
+            console.log(result)
+            if(!result[0]){
+                console.log(err)
+                res.status(500).send({error: 'Utilisateur non trouvé'});
             }else{
                 res.status(200).json(result[0])
             }
@@ -112,3 +113,49 @@ exports.deleteUser = (req, res, next) => {
     })
 
 };
+//-------------------FUNCTION
+const addUser = (values,res) => {
+    bcrypt
+    .hash(values.password, 10)
+    .then((hash) => {
+        const sql = "INSERT INTO user SET ?";
+      const value = {
+        name: values.name,
+        last_name: values.last_name,
+        date: new Date(Date.now()),
+        password: hash,
+        email: values.email,
+      };
+    db.query(sql,value,(err,result) =>{
+        if(err){
+            res.status(500).send({error: err})
+        }
+        setAccessDefault(res);
+    })})
+    .catch((err) => { res.status(500).send({error: err})})
+}
+const setAccessDefault = (res) => {
+    const sql = 'SELECT id FROM user ORDER By id DESC LIMIT 1';
+    db.query(sql,(err,result) => {
+        if(err){
+            res.status(500).send({error: err})
+        }
+        addDefaultAccess(result[0].id,res)
+    });
+}
+const addDefaultAccess = (idUser,res) => {
+    console.log(idUser)
+    const value = {
+        id_user : idUser,
+        id_channel : 1
+    }
+    const sql = "INSERT INTO acces SET ?";
+    db.query(sql,value,(err,result) =>{
+        if(err){
+            console.log(err)
+            res.status(500).send({error: err})
+        }
+        res.status(200).json({message : 'Success'})
+        
+    })
+}
