@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const control = require("../controleurs/user");
 const verifInput = require('../midleware/verifInput')
+const control = require("../controleurs/user");
 
 
-router.post('/signup', control.signup);
-router.post('/login',verifInput,control.login);
+router.post('/signup',verifInput,control.signup);
+router.post('/login',verifInput,verifInput,control.login);
 router.get('/:id', control.getUser);
-router.delete('/:id');
+router.delete('/:id',verifInput);
 router.put('/:id')
 
 module.exports = router;
