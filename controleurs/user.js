@@ -18,7 +18,7 @@ exports.signup = (req, res, next) => {
   ) {
     res.status(400).send({ error: "Missing input" });
   }
-  const sql = 'SELECT * FROM user WHERE ?'
+  const sql = 'SELECT * FROM users WHERE ?'
   const value = { email : req.body.email}
   console.log('preVerif Email : ', value)
   db.query(sql, value, (err, result) => {
@@ -42,9 +42,9 @@ exports.login = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT password, id FROM user WHERE ?";
+        const sql = "SELECT password, id FROM users WHERE ?";
         const values = {email: req.body.email};
-        db.query(request,values,(err,result) => {
+        db.query(sql,values,(err,result) => {
             if(!result[0]){
                 res.status(400).send({error: 'Utilisateur incorrect'});
                 
@@ -74,11 +74,11 @@ exports.getUser = (req, res, next) => {
         res.status(400).send({error: 'Missing input'});
     }
     else{
-        const request = "SELECT name, last_name, post, date FROM user WHERE ?";
+        const sql = "SELECT name, last_name, post, date FROM users WHERE ?";
         const value = {
             id : req.params.id
         }
-        db.query(request,value,(err,result) => {
+        db.query(sql,value,(err,result) => {
             console.log(result)
             if(!result[0]){
                 console.log(err)
@@ -90,7 +90,7 @@ exports.getUser = (req, res, next) => {
     }
 };
 exports.deleteUser = (req, res, next) => {
-    const sqlOne = "SELECT * FROM user WHERE id = ?";
+    const sqlOne = "SELECT * FROM users WHERE id = ?";
     const values = {
         id : req.body.userID
     }
@@ -99,7 +99,7 @@ exports.deleteUser = (req, res, next) => {
             res.status(400).send({error: err})
         }
         if (result[0].id == res.params.id || result[0].op == 1) {
-            const sqlDelet = "DELETE FROM user WHERE id = ?";
+            const sqlDelet = "DELETE FROM users WHERE id = ?";
             const values = req.params.id;
             db.query(sqlDelet,values,(err,result) =>{
                 if(err){
@@ -118,7 +118,7 @@ const addUser = (values,res) => {
     bcrypt
     .hash(values.password, 10)
     .then((hash) => {
-        const sql = "INSERT INTO user SET ?";
+        const sql = "INSERT INTO users SET ?";
       const value = {
         name: values.name,
         last_name: values.last_name,
@@ -135,7 +135,7 @@ const addUser = (values,res) => {
     .catch((err) => { res.status(500).send({error: err})})
 }
 const setAccessDefault = (res) => {
-    const sql = 'SELECT id FROM user ORDER By id DESC LIMIT 1';
+    const sql = 'SELECT id FROM users ORDER By id DESC LIMIT 1';
     db.query(sql,(err,result) => {
         if(err){
             res.status(500).send({error: err})
@@ -149,7 +149,7 @@ const addDefaultAccess = (idUser,res) => {
         id_user : idUser,
         id_channel : 1
     }
-    const sql = "INSERT INTO acces SET ?";
+    const sql = "INSERT INTO access SET ?";
     db.query(sql,value,(err,result) =>{
         if(err){
             console.log(err)

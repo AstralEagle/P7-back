@@ -4,7 +4,7 @@ const db = database.getDB();
 
 module.exports = (req,res, next) => {
     const userID = req.headers.authorization.split(' ')[2];
-    const sql = 'SELECT op FROM user WHERE ?';
+    const sql = 'SELECT op FROM users WHERE ?';
     const value = {id : userID};
     db.query(sql, value, (err, result) => {
         if(err) {
@@ -24,7 +24,7 @@ const verifAccesAdmin = (req,res,next) => {
         res.status(404).end();
     }
     const userID = parseInt(req.headers.authorization.split(' ')[2]);
-    const sql = 'SELECT * FROM groupomania.acces WHERE ? AND ?'
+    const sql = 'SELECT * FROM access WHERE ? AND ?'
     const value = [
       {
         id_user: userID,

@@ -5,7 +5,7 @@ const db = database.getDB();
 //Marche (retourne les id des channels)
 exports.getAllChannels = (req, res, next) => {
     console.log('getAllChannels');
-    const sql = "SELECT id_channel,op FROM acces WHERE ?";
+    const sql = "SELECT id_channel,op FROM access WHERE ?";
     const value = {
         id_user : parseInt(req.headers.authorization.split(' ')[2]),
     }
@@ -24,12 +24,13 @@ exports.getChannelByID = (req, res, next) => {
         res.status(404).end();
     }
     console.log('getChannelBy', req.params.id);
-    const sql = "SELECT * FROM channel WHERE ?";
+    const sql = "SELECT * FROM channels WHERE ?";
     const value = {
         id : req.params.id,
     }
     db.query(sql, value,(err, result) => {
         if(err){
+            console.log(err)
             res.status(500).json(err)
         }
         console.log(result);
@@ -42,7 +43,7 @@ exports.createChannel = (req, res, next) => {
     if(!req.body.nameChan || !req.body.userID){
         res.status(404).end();
     }
-    const sql = "INSERT INTO channel SET ?";
+    const sql = "INSERT INTO channels SET ?";
     const value = {
         name : req.body.nameChan,
     }
@@ -61,7 +62,7 @@ exports.removeChannel =  (req, res, next) => {
   if (!req.body.userID || req.params.id) {
     res.status(404).end();
   }
-  const sql = "DELETE FROM channel WHERE ?";
+  const sql = "DELETE FROM channels WHERE ?";
   const value = {
     id: req.params.id,
   };
@@ -86,91 +87,9 @@ exports.removeChannel =  (req, res, next) => {
 
 //----------------------------- FUNCTION
 
-const deleteAllAccess = async (idChan, res) => {
-    console.log("Acces 1")
-    const sql = "SELECT * FROM acces WHERE ?"
-    const value = {
-        id_channel : idChan
-    }
-    console.log("Acces 2")
-    await db.query(sql,value,(err, result) => {
-        console.log("Acces 3")
-        if(err){
-         console.log(err);
-         res.status(500).json({error : err})
-     }
-     else if(result.length > 0){
-         console.log(result);
-         console.log("Acces 4")
-         for (let access of result){
-             console.log(access.id);
-             removeAcces(access.id, res);
-            }
-        }
-            console.log("Acces 5")
-    }
-      );
-     console.log("Acces 6")
-}
-const removeAcces = async (id,res) => {
-    console.log("Acces 1 by id:"+id)
-    const sql = "DELETE FROM acces WHERE ?";
-    const value = {
-      id: id,
-    };
-    console.log("Acces 2 by id:"+id)
-    await db.query(sql, value, (err, result) => {
-        console.log("Acces 3 by id:"+id)
-        if(err) {
-            console.log(err);
-            res.status(500).json({error : err})
-        }
-        console.log("Acces 4 by id:"+id)
-    })
-}
 
-const deleteAllMessage =  (idChan, res) => {
-    console.log("Message 1")
-    const sql = "SELECT * FROM message WHERE ?"
-    const value = {
-        id_channel : idChan
-    }
-    console.log("Message 2")
-    db.query(sql,value,(err, result) => {
-        console.log("Message 3")
-     if(err){
-         console.log(err);
-         res.status(500).json({error : err})
-     }
-     else if(result.length > 0){
-         console.log("Message 4")
-         for (let access of result){
-             removeMessage(access.id, res);
-         }
-        }
-        console.log("Message 5")
-    }
-      );
-}
-
-const removeMessage = async (id,res) => {
-    console.log("Message 1 by id:"+id)
-    const sql = "DELETE FROM message WHERE ?";
-    const value = {
-      id: id,
-    };
-    console.log("Message 2 by id:"+id)
-    await db.query(sql, value, (err, result) => {
-        console.log("Message 3 by id:"+id)
-        if(err) {
-            console.log(err);
-            res.status(500).json({error : err})
-        }
-        console.log("Message 4 by id:"+id)
-    })
-}
 const setAccessDefault = (userId) => {
-    const sql = 'SELECT id FROM channel ORDER BY id DESC LIMIT 1';
+    const sql = 'SELECT id FROM channels ORDER BY id DESC LIMIT 1';
     db.query(sql,(err,result) => {
         if(err){
             throw err;
@@ -184,7 +103,7 @@ const addDefaultAccess = (idChan,userId) => {
         id_channel : idChan,
         op : 1
     }
-    const sql = "INSERT INTO acces SET ?";
+    const sql = "INSERT INTO access SET ?";
     db.query(sql,value,(err,result) =>{
         console.log(err)
         console.log(result)

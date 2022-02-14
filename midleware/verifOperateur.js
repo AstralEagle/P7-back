@@ -5,7 +5,7 @@ const db = database.getDB();
 
 module.exports = (req,res, next) => {
     const userID = req.headers.authorization.split(' ')[2];
-    const sql = 'SELECT op FROM user WHERE ?';
+    const sql = 'SELECT op FROM users WHERE ?';
     const value = {id : userID};
     db.query(sql, value, (err, result) => {
         if(err) {

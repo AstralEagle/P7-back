@@ -2,21 +2,23 @@ require('dotenv').config({path: './config/.env'})
 
 const jwt = require('jsonwebtoken');
 
-module.exports = (req,res, next) => {
+module.exports = (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const userID = parseInt(req.headers.authorization.split(' ')[2]);
+    const token = req.headers.authorization.split(" ")[1];
+    const userID = parseInt(req.headers.authorization.split(" ")[2]);
     const decodedToken = jwt.verify(token, process.env.KEYTOKEN);
     const verifiID = decodedToken.userID;
-    if (req.body.userID && parseInt(req.body.userID) !== verifiID || userID !== verifiID) {
-      throw 'Invalid user ID';
+    if (
+      (req.body.userID && parseInt(req.body.userID) !== verifiID) ||
+      userID !== verifiID
+    ) {
+      throw "Invalid user ID";
     } else {
       next();
     }
   } catch {
     res.status(403).json({
-      error: "Log out"
+      error: "Log out",
     });
   }
-
 };

@@ -8,7 +8,7 @@ exports.addAccess = (req, res, next) => {
   if (!req.body.userID || !req.params.id) {
     res.status(404).end();
   }
-  const sql = "SELECT * FROM acces WHERE ? AND ?";
+  const sql = "SELECT * FROM access WHERE ? AND ?";
 
   const value = [
     {
@@ -32,7 +32,7 @@ exports.removeAccess = (req, res, next) => {
   if (!req.body.userID || !req.params.id) {
     res.status(404).end();
   }
-  const sql = "DELETE FROM acces WHERE ? AND ?";
+  const sql = "DELETE FROM access WHERE ? AND ?";
   const value = [
     {
       id_user: req.body.userID,
@@ -55,7 +55,7 @@ exports.forceRemoveAccess = (req, res, next) => {
   if (!req.body.idUser || !req.params.id) {
     res.status(404).end();
   }
-  const sql = "SELECT id FROM acces WHERE ? AND ?";
+  const sql = "SELECT id FROM access WHERE ? AND ?";
   const value = [
     {
       id_user: req.body.idUser,
@@ -77,7 +77,7 @@ exports.getAllAccess = (req, res, next) => {
   if (!req.params.id) {
     res.status(404).end();
   }
-  const sql = "SELECT * FROM acces WHERE ?";
+  const sql = "SELECT * FROM access WHERE ?";
   const value = {
     id_channel: req.params.id,
   };
@@ -93,7 +93,7 @@ exports.addAdmin = (req, res) => {
   if (!req.params.id || !req.body.idUser) {
     res.status(404).end();
   }
-  const sql = "SELECT id FROM  acces WHERE ? AND ?";
+  const sql = "SELECT id FROM  access WHERE ? AND ?";
   const value = [{ id_user: req.body.idUser }, { id_channel: req.params.id }];
   db.query(sql, value, (err, result) => {
     if (!result[0] || err) {
@@ -107,7 +107,7 @@ exports.removeAdmin = (req, res) => {
   if (!req.params.id || !req.body.idUser) {
     res.status(404).end();
   }
-  const sql = "SELECT id FROM  acces WHERE ? AND ?";
+  const sql = "SELECT id FROM  access WHERE ? AND ?";
   const value = [{ id_user: req.body.idUser }, { id_channel: req.params.id }];
   db.query(sql, value, (err, result) => {
     if (!result[0] || err) {
@@ -119,7 +119,7 @@ exports.removeAdmin = (req, res) => {
 }
 //---------------------------- Function 
 const removeAccessFromId = (idAcces, res)=> {
-    const sql = 'DELETE FROM acces WHERE ?'
+    const sql = 'DELETE FROM access WHERE ?'
     const value = {
         id: idAcces
     }
@@ -132,7 +132,7 @@ const removeAccessFromId = (idAcces, res)=> {
     })
 }
 const addAccesFromUser = (values,res) => {
-  const sql = "INSERT INTO acces SET ?";
+  const sql = "INSERT INTO access SET ?";
   const value = {
     id_user: values[0].id_user,
     id_channel: values[1].id_channel,
@@ -146,7 +146,7 @@ const addAccesFromUser = (values,res) => {
   });
 }
 const editAdminAcces = (admin,idAcces,res) => {
-  const sql = "UPDATE acces SET ? WHERE ?";
+  const sql = "UPDATE access SET ? WHERE ?";
   const value = [
     {
       op: admin,

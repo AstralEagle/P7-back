@@ -7,7 +7,7 @@ module.exports = (req,res, next) => {
         res.status(404).end();
     }
     const userID = parseInt(req.headers.authorization.split(' ')[2]);
-    const sql = 'SELECT * FROM groupomania.acces WHERE ? AND ?'
+    const sql = 'SELECT * FROM groupomania.access WHERE ? AND ?'
     const value = [
       {
         id_user: userID,

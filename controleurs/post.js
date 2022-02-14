@@ -10,14 +10,14 @@ exports.getMessage = (req,res,next) => {
 
 }
 exports.postMessage = (req, res, next) => {
-    if(!req.body.description | !req.body.userID | !req.body.name) {
+    if(!req.body.description | !req.body.userID | !req.body.postName) {
         res.status(400).json({error: "No Message"})
     }
     else{
         const request = "INSERT INTO post SET ?"
         const values = {
             id_user : req.body.userID,
-            name : req.body.name,
+            name : req.body.postName,
             description : req.body.description
         }
         db.query(request,values,(err,result) => {
