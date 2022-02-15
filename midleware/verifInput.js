@@ -16,17 +16,17 @@ module.exports = (req,res,next) => {
   if (req.body.name) {
     console.log("Verif Name");
     var regExp =
-      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{5,45}$/;
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{3,45}$/;
     if (!regExp.test(req.body.name)) {
       verifInput = false;
-      res.status(400).json({ error: "Nom non conforme" });
+      res.status(400).json({ error: "Prenom non conforme" });
     }
   }
 
   if (req.body.last_name) {
     console.log("Verif Nom");
     var regExp =
-      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{5,45}$/;
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]{2,45}$/;
     if (!regExp.test(req.body.last_name)) {
       verifInput = false;
       res.status(400).json({ error: "Nom non conforme" });
@@ -43,7 +43,7 @@ module.exports = (req,res,next) => {
   }
 
   if (req.body.message) {
-    var regEx = /^.{5,250}$/;
+    var regEx = /^.{1,250}$/;
     if (!regEx.test(req.body.message)) {
       verifInput = false;
       res.status(400).json({ error: "Message non valid" });

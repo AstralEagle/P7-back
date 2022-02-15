@@ -12,7 +12,6 @@ exports.getAllMessages = (req, res, next) => {
         if(err){
             res.status(500).json(err);
         }
-        console.log(result);
         res.status(200).json(result);
     })
 }
@@ -28,7 +27,6 @@ exports.getMessage = (req, res, next) => {
           console.log(err);
             res.status(500).json(err);
         }
-        console.log(result);
         res.status(200).json(result[0]);
     })
 }
@@ -36,52 +34,56 @@ exports.getMessage = (req, res, next) => {
 
 //Marche
 exports.createMessage = (req, res, next) => {
-    if(!req.body.userID || !req.body.message || !req.params.id){
-        res.status(400).end();
-    }
+  if (!req.body.userID || !req.body.message || !req.params.id) {
+    res.status(400).end();
+  } else {
     const date = new Date(Date.now());
-    const sql = 'INSERT INTO messages SET ?';
+    const sql = "INSERT INTO messages SET ?";
     const value = {
-        id_user : req.body.userID,
-        message : req.body.message,
-        time : date,
-        id_channel: req.params.id,
+      id_user: req.body.userID,
+      message: req.body.message,
+      time: date,
+      id_channel: req.params.id,
     };
-    if(req.body.replyID !== undefined){
+    if (req.body.replyID !== undefined) {
       value.id_reply = req.body.replyID;
     }
 
     db.query(sql, value, (err, result) => {
       console.log(err);
-        if(err){
-            res.status(500).json(err);
-        }
-        res.status(200).json({message : "Message envoyer!"});
-    })
+      if (err) {
+        res.status(500).json(err);
+      }
+      res.status(200).json({ message: "Message envoyer!" });
+    });
+  }
 }
 exports.deleteMessage = (req, res, next) => {
-  console.log(req.body);
   if (!req.body.userID || !req.params.id) {
     res.status(400).end();
+  } else {
+    const sql = "SELECT * FROM messages WHERE ?";
+    const value = {
+      id: req.params.id,
+    };
+    db.query(sql, value, (err, result) => {
+      if (result[0].id_user === parseInt(req.body.userID)) {
+        deleteMessageById(req.params.id, res);
+      } else {
+        res.status(400).json({ message: "Error" });
+      }
+    });
   }
-  const sql = "SELECT * FROM messages WHERE ?";
-  const value = {
-    id: req.params.id,
-  };
-  db.query(sql, value, (err, result) => {
-    console.log(err, req.body.userID);
-    console.log(result);
-    if (result[0].id_user === parseInt(req.body.userID)) {
-      const sql2 = "DELETE FROM messages WHERE ?";
-      db.query(sql2, value, (err2, result2) => {
-        console.log(err2);
-        if (err2) {
-          return res.status(500).json(errs);
+}
+// ---------------- FUNCTION 
+const deleteMessageById = (idMessage , res) => {
+  const sql = "DELETE FROM messages WHERE ?";
+  const value = { id : idMessage };
+      db.query(sql, value, (err, result) => {
+        if (err) {
+          console.log(err)
+          return res.status(500).json(err);
         }
         res.status(200).json({ message: "Succes delete" });
       });
-    } else {
-      res.status(500).json({ message: "Error" });
-    }
-  });
 }
