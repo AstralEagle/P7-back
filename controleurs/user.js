@@ -53,7 +53,7 @@ exports.login = (req, res, next) => {
             });
           })
           .catch((err) =>
-            res.status(400).send({ error: "Mot de passe incorrect" })
+            res.status(400).json({ error: "Mot de passe incorrect" })
           );
       }
     });
@@ -61,7 +61,7 @@ exports.login = (req, res, next) => {
 };
 exports.getUser = (req, res, next) => {
   if (!req.params.id) {
-    res.status(400).send({ error: "Information introuvable" });
+    res.status(400).json({ error: "Information introuvable" });
   } else {
     const sql = "SELECT name, last_name, post, date FROM users WHERE ?";
     const value = {
@@ -70,7 +70,7 @@ exports.getUser = (req, res, next) => {
     db.query(sql, value, (err, result) => {
       if (!result[0]) {
         console.log(err);
-        res.status(500).send({ error: "Utilisateur non trouvé" });
+        res.status(500).json({ error: "Utilisateur non trouvé" });
       } else {
         res.status(200).json(result[0]);
       }
