@@ -4,7 +4,7 @@ const db = database.getDB();
 
 //Marche
 exports.getAllMessages = (req, res, next) => {
-    const sql = 'SELECT messages.id,messages.message,messages.time,messages.id_reply,messages.id_user,users.name as user_name,users.last_name as user_last_name FROM messages JOIN users on id_user = users.id WHERE ? ORDER BY messages.id';
+    const sql = 'SELECT messages.id,messages.message,messages.time,messages.url_img ,messages.id_reply,messages.id_user,users.name as user_name,users.last_name as user_last_name FROM messages JOIN users on id_user = users.id WHERE ? ORDER BY messages.id';
     const value = {
         id_channel: req.params.id
     };
@@ -34,30 +34,40 @@ exports.getMessage = (req, res, next) => {
 
 //Marche
 exports.createMessage = (req, res, next) => {
-  if (!req.body.userID || !req.body.message || !req.params.id) {
-    res.status(400).end();
-  } else {
-    const date = new Date(Date.now());
+
+  const valeurs = req.file?
+  {
+    ...JSON.parse(req.body.message),
+    imageUrl : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  }:{...req.body}
+  console.log(valeurs)
+
+  if (!valeurs.userID ||!req.params.id) {
+    res.status(400).json({error: "Manque d'information" });
+  } else if(valeurs.message || valeurs.imageUrl) {
     const sql = "INSERT INTO messages SET ?";
     const value = {
-      id_user: req.body.userID,
-      message: req.body.message,
-      time: date,
+      id_user: valeurs.userID,
+      message: valeurs.message,
+      time: new Date(Date.now()),
       id_channel: req.params.id,
+      url_img : valeurs.imageUrl
     };
     if (req.body.replyID !== undefined) {
       value.id_reply = req.body.replyID;
     }
-
     db.query(sql, value, (err, result) => {
-      console.log(err);
       if (err) {
+        console.log(err);
         res.status(500).json(err);
       }
       res.status(200).json({ message: "Message envoyer!" });
     });
+  }else{
+    res.status(400).json({error: "Manque d'information" });
   }
 }
+
 exports.deleteMessage = (req, res, next) => {
   if (!req.body.userID || !req.params.id) {
     res.status(400).end();

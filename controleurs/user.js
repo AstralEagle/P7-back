@@ -103,6 +103,9 @@ exports.deleteUser = (req, res, next) => {
     });
   }
 }
+exports.updateUser = (req, res,next) => {
+    
+}
 
 //-------------------FUNCTION
 const addUser = (values,res) => {
