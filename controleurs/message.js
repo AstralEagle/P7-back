@@ -1,4 +1,5 @@
 const database = require('../config/DB');
+const fs = require('fs');
 
 const db = database.getDB();
 
@@ -53,8 +54,8 @@ exports.createMessage = (req, res, next) => {
       id_channel: req.params.id,
       url_img : valeurs.imageUrl
     };
-    if (req.body.replyID !== undefined) {
-      value.id_reply = req.body.replyID;
+    if (valeurs.replyID !== undefined) {
+      value.id_reply = valeurs.replyID;
     }
     db.query(sql, value, (err, result) => {
       if (err) {
@@ -72,13 +73,14 @@ exports.deleteMessage = (req, res, next) => {
   if (!req.body.userID || !req.params.id) {
     res.status(400).end();
   } else {
-    const sql = "SELECT * FROM messages WHERE ?";
+    const sql = "SELECT id_user, url_img, id FROM messages WHERE ?";
     const value = {
       id: req.params.id,
     };
     db.query(sql, value, (err, result) => {
+      console.log(result);
       if (result[0].id_user === parseInt(req.body.userID)) {
-        deleteMessageById(req.params.id, res);
+        deleteMessageById(result[0], res);
       } else {
         res.status(400).json({ message: "Error" });
       }
@@ -86,14 +88,16 @@ exports.deleteMessage = (req, res, next) => {
   }
 }
 // ---------------- FUNCTION 
-const deleteMessageById = (idMessage , res) => {
+const deleteMessageById = (message , res) => {
   const sql = "DELETE FROM messages WHERE ?";
-  const value = { id : idMessage };
+  const value = { id : message.id };
       db.query(sql, value, (err, result) => {
         if (err) {
           console.log(err)
           return res.status(500).json(err);
         }
+        const filename = message.url_img.split("/images/")[1];
+        fs.unlink(`images/${filename}`, () => {})
         res.status(200).json({ message: "Succes delete" });
       });
 }

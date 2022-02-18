@@ -9,7 +9,7 @@ const control = require("../controleurs/message");
 
 router.get('/:id/channel',auth,verifAcces,control.getAllMessages);
 router.get('/:id',auth,control.getMessage);
-router.post('/:id',verifInput,auth,verifAcces,multer,control.createMessage);
+router.post('/:id',auth,verifAcces,multer,verifInput,control.createMessage);
 router.delete('/:id',verifInput,auth,control.deleteMessage);
 
 
