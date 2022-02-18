@@ -65,11 +65,7 @@ exports.removeChannel =  (req, res, next) => {
   const value = {
     id: req.params.id,
   };
-  const afterDelete = async () => {
-    await deleteAllMessage(req.params.id, res);
-    await deleteAllAccess(req.params.id,res)
-    console.log("CHANNEL REMOVED")
-  }
+
   db.query(sql,value,(err, result) => {
     console.log("Channel 2")
       if (err) {
@@ -77,23 +73,25 @@ exports.removeChannel =  (req, res, next) => {
         res.status(500).json({ error: err });
       }
       console.log("Channel 3")
-      afterDelete()
-
+      
+        console.log("Channel 4")
+    res.status(200).json({message: "Test"})
     }
+    
   );
 }
 
 
 //----------------------------- FUNCTION
 
-const deleteAllAccess = async (idChan, res) => {
+const deleteAllAccess = (idChan, res) => {
     console.log("Acces 1")
     const sql = "SELECT * FROM acces WHERE ?"
     const value = {
         id_channel : idChan
     }
     console.log("Acces 2")
-    await db.query(sql,value,(err, result) => {
+    db.query(sql,value,(err, result) => {
         console.log("Acces 3")
         if(err){
          console.log(err);
@@ -112,14 +110,14 @@ const deleteAllAccess = async (idChan, res) => {
       );
      console.log("Acces 6")
 }
-const removeAcces = async (id,res) => {
+const removeAcces = (id,res) => {
     console.log("Acces 1 by id:"+id)
     const sql = "DELETE FROM acces WHERE ?";
     const value = {
       id: id,
     };
     console.log("Acces 2 by id:"+id)
-    await db.query(sql, value, (err, result) => {
+    db.query(sql, value, (err, result) => {
         console.log("Acces 3 by id:"+id)
         if(err) {
             console.log(err);
@@ -153,14 +151,14 @@ const deleteAllMessage =  (idChan, res) => {
       );
 }
 
-const removeMessage = async (id,res) => {
+const removeMessage = (id,res) => {
     console.log("Message 1 by id:"+id)
     const sql = "DELETE FROM message WHERE ?";
     const value = {
       id: id,
     };
     console.log("Message 2 by id:"+id)
-    await db.query(sql, value, (err, result) => {
+    db.query(sql, value, (err, result) => {
         console.log("Message 3 by id:"+id)
         if(err) {
             console.log(err);
@@ -169,6 +167,9 @@ const removeMessage = async (id,res) => {
         console.log("Message 4 by id:"+id)
     })
 }
+
+
+
 const setAccessDefault = (userId) => {
     const sql = 'SELECT id FROM channel ORDER BY id DESC LIMIT 1';
     db.query(sql,(err,result) => {
