@@ -5,6 +5,7 @@ const db = database.getDB();
 exports.getMessage = (req, res, next) => {
 
     const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id GROUP BY post.id'
+    console.log(req.headers.authorization)
     const userID = req.headers.authorization.split(" ")[2];
     const value = {"likes.id_user" : userID}
     db.query(sql,value, (err, result) => {
@@ -15,6 +16,7 @@ exports.getMessage = (req, res, next) => {
         console.log(result[0])
         res.status(200).json(result);
     })
+
 }
 exports.getPostByID = (req, res, next) => {
 
@@ -60,45 +62,6 @@ exports.postMessage = (req, res, next) => {
             }
         })
     }
-}
-exports.getLikeByID = (req, res, next) => {
-
-    console.log("GetLike")
-    const idUser = req.headers.authorization.split(" ")[2];
-    console.log(idUser)
-
-    const request = "SELECT * FROM groupomania.likes WHERE ?";
-    const value = { id_post: req.params.id }
-    db.query(request, value, (err, result) => {
-        console.log(result)
-        console.log(err)
-        const findlike = result.find(u => u.id_user == idUser);
-        console.log(findlike)
-        if (findlike != null) {
-            console.log("like")
-            res.status(200).json({
-                nbrLike: result.length,
-                isLike: true
-            })
-        }
-        else {
-            res.status(200).json({ nbrLike: result.length })
-        }
-    })
-}
-exports.getCommentByID = (req, res, next) => {
-    const sql = 'SELECT * FROM comments WHERE ?'
-    const value = { id_post: req.params.id }
-
-    db.query(sql, value, (err, result) => {
-        if (err) {
-            console.log(err)
-            res.status(500).json({ error: err })
-        }
-        else {
-            res.status(200).json(result)
-        }
-    })
 }
 
 exports.deleteMessage = (req, res, next) => {
@@ -165,24 +128,34 @@ exports.commentMessage = (req, res, next) => {
             res.status(200).json({ message: "Commentaire envoyer avec succes" })
         }
     })
+}
+exports.getAllCommentsByID = (req, res, next) => {
 
-}
-exports.getMessageUser = (req, res, next) => {
-}
-exports.getIsLike = (req, res, next) => {
-    const sql = 'SELECT * FROM likes WHERE ? AND ?';
-    const value = [{ id_user: req.headers.authorization.split(" ")[2] },
-    { id_post: req.params.id }]
+    const sql = 'SELECT comments.id, users.name as userName, users.last_name as userlastName, comments.comment FROM comments JOIN users on users.id = comments.id_user WHERE ?'
+    const value = { id_post: req.params.id}
     db.query(sql, value, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(500).json({ error: err });
-        }
-        else if (result[0]) {
-            res.status(200).json({ isLiked: true });
+        if(err){
+            console.log(err)
+            res.status(500).json({error: err})
         }
         else {
-            res.status(200).json({ isLiked: false });
+            res.status(200).json(result)
         }
-    });
+    })
+}
+exports.reportPostByID = (req, res, next) => {
+
+    const sql = 'INSERT INTO report SET ?';
+    const value = { id_post: req.params.id,
+                    id_user: req.headers.authorization.split(' ')[2]};
+    db.query(sql, value,(err, result) => {
+        if(err){
+            console.log(err)
+            res.status(500).json({error: err})
+        }
+        else {
+            res.status(200).json({message : 'Report succès'})
+        }
+    })
+
 }

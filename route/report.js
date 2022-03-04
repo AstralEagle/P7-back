@@ -6,7 +6,8 @@ const control = require('../controleurs/report')
 
 const router = express.Router();
 
-router.post('/:id',verifInput,auth,control.conditionReportMessage,control.reportMessage)
-router.get('/',auth,verifAdmin,control.getAllMessageAlerte)
+router.post('/message/:id/',verifInput,auth,control.conditionReportMessage,control.reportMessage)
+router.post('/post/:id')
+router.get('/message',auth,verifAdmin,control.getAllMessageAlerte)
 
 module.exports = router;
