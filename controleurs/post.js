@@ -4,25 +4,34 @@ const db = database.getDB();
 
 exports.getMessage = (req, res, next) => {
 
-    const sql = "SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userLastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id GROUP BY post.id ORDER BY post.id DESC  "
-    db.query(sql, (err, result) => {
-        res.status(200).json(result);
-    })
-}
-exports.getPostByID = (req,res,next) => {
-  
-    const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id'
-    const value = {'post.id' : req.params.id}
-    db.query(sql,value,(err,result) => {
+    const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id GROUP BY post.id'
+    const userID = req.headers.authorization.split(" ")[2];
+    const value = {"likes.id_user" : userID}
+    db.query(sql,value, (err, result) => {
         if(err){
             console.log(err)
             res.status(500).json({error : err})
         }
-        else{
-            if(!result[0]){
-                res.status(400).json({error : "Post introuvable"})
+        console.log(result[0])
+        res.status(200).json(result);
+    })
+}
+exports.getPostByID = (req, res, next) => {
+
+    const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id;'
+    const userID = req.headers.authorization.split(" ")[2];
+    const value = [{"likes.id_user" : userID},{'post.id': req.params.id}]
+
+    db.query(sql, value, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.status(500).json({ error: err })
+        }
+        else {
+            if (!result[0]) {
+                res.status(400).json({ error: "Post introuvable" })
             }
-            else{
+            else {
                 res.status(200).json(result[0])
             }
 
@@ -77,16 +86,16 @@ exports.getLikeByID = (req, res, next) => {
         }
     })
 }
-exports.getCommentByID =(req,res,next) => {
+exports.getCommentByID = (req, res, next) => {
     const sql = 'SELECT * FROM comments WHERE ?'
-    const value = {id_post : req.params.id}
+    const value = { id_post: req.params.id }
 
-    db.query(sql,value,(err,result) => {
-        if(err){
+    db.query(sql, value, (err, result) => {
+        if (err) {
             console.log(err)
-            res.status(500).json({error : err})
+            res.status(500).json({ error: err })
         }
-        else{
+        else {
             res.status(200).json(result)
         }
     })
@@ -142,38 +151,38 @@ exports.commentMessage = (req, res, next) => {
 
     const sql = 'INSERT INTO comments SET ?'
     const value = {
-        id_user : req.body.userID ,
-        id_post : req.params.id ,
-        comment : req.body.comment 
+        id_user: req.body.userID,
+        id_post: req.params.id,
+        comment: req.body.comment
     }
-    db.query(sql,value,(err,result) => {
-        if(err){
+    db.query(sql, value, (err, result) => {
+        if (err) {
             console.log(err)
             res.status(500).json(err)
         }
-        else{
+        else {
             console.log("Commentaire envoyer")
-            res.status(200).json({message : "Commentaire envoyer avec succes"})
+            res.status(200).json({ message: "Commentaire envoyer avec succes" })
         }
     })
 
 }
 exports.getMessageUser = (req, res, next) => {
 }
-exports.getIsLike = (req,res,next) => {
+exports.getIsLike = (req, res, next) => {
     const sql = 'SELECT * FROM likes WHERE ? AND ?';
-    const value = [{id_user : req.headers.authorization.split(" ")[2]},
-                    {id_post : req.params.id}]
-    db.query(sql,value,(err,result) => {
-        if(err){
+    const value = [{ id_user: req.headers.authorization.split(" ")[2] },
+    { id_post: req.params.id }]
+    db.query(sql, value, (err, result) => {
+        if (err) {
             console.log(err);
-            res.status(500).json({error : err});
+            res.status(500).json({ error: err });
         }
-        else if(result[0]){
-            res.status(200).json({isLiked : true});
+        else if (result[0]) {
+            res.status(200).json({ isLiked: true });
         }
-        else{
-            res.status(200).json({isLiked : false});
+        else {
+            res.status(200).json({ isLiked: false });
         }
     });
 }

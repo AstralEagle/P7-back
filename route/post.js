@@ -18,6 +18,4 @@ router.post('/:id/like',verifInput,control.likeMessage);
 router.post('/:id/comment',control.commentMessage);
 router.get('/:user/',control.getMessageUser);
 
-
-
 module.exports = router;
