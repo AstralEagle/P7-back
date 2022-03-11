@@ -53,10 +53,10 @@ exports.createChannel = (req, res, next) => {
     });
   }
 }
-//Marche pas tre bien | ajouter la suppression des acces et des message du channel
+//Marche 
 exports.removeChannel = (req, res, next) => {
-  if (!req.body.userID || req.params.id) {
-    res.status(404).end();
+  if (!req.body.userID || !req.params.id) {
+    res.status(404).json({error: 'Missing input'});
   } else {
     const sql = "DELETE FROM channels WHERE ?";
     const value = {

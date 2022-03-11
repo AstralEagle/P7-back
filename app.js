@@ -11,6 +11,7 @@ const accesRoute = require('./route/acces');
 const channelRoute = require('./route/channel');
 const messageRoute = require('./route/message');
 const reportRoute = require('./route/report');
+const adminRoute = require('./route/admin')
 
 const multer = require('./midleware/multer')
 const auth = require('./midleware/auth')
@@ -47,6 +48,7 @@ app.use('/api/acces',accesRoute)
 app.use('/api/channel',channelRoute);
 app.use('/api/message',messageRoute);
 app.use('/api/report',reportRoute);
+app.use('/api/admin',adminRoute)
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
