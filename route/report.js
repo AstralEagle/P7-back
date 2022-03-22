@@ -14,4 +14,6 @@ router.get('/message/:id',auth,verifAdmin,control.getAllMessageAlerte)
 router.get('/post/:id',auth,verifAdmin,control.getAllPostAlerte)
 router.get('/comment/:id',auth,verifAdmin,control.getAllCommentAlerte)
 
+
+
 module.exports = router;

@@ -27,6 +27,7 @@ exports.getPostByID = (req, res, next) => {
     db.query(sql, value, (err, result) => {
         if (err) {
             console.log(err)
+            
             res.status(500).json({ error: err })
         }
         else {
