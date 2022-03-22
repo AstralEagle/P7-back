@@ -1,12 +1,9 @@
-require('dotenv').config({path: './config/.env'})
-const database = require('../config/DB');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-
+require("dotenv").config({ path: "./config/.env" });
+const database = require("../config/DB");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const db = database.getDB();
-
 
 exports.signup = (req, res, next) => {
   if (
@@ -46,7 +43,6 @@ exports.login = (req, res, next) => {
         bcrypt
           .compare(req.body.password, user.password)
           .then((result) => {
-
             res.status(200).json({
               userID: user.id,
               token: jwt.sign({ userID: user.id }, process.env.KEYTOKEN, {
@@ -104,17 +100,51 @@ exports.deleteUser = (req, res, next) => {
       }
     });
   }
-}
-exports.updateUser = (req, res,next) => {
-    
+};
+
+exports.getLikeByUser = (req, res, next) => {
+  const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id'
+  const value = [{
+    'likes.id_user': req.headers.authorization.split(" ")[2]
+  },{
+    'likes.id_user' : req.params.id
+  }]
+  db.query(sql, value, (err, result) => {
+    if(err){
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
+    else{
+      res.status(200).json(result)
+    }
+  })
+};
+exports.getPostByUser = (req, res, next) => {
+  const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id'
+  const value = [{
+    'likes.id_user': req.headers.authorization.split(" ")[2]
+  },{
+    'post.id_user' : req.params.id
+  }]
+  db.query(sql, value, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: err})
+    }
+    else{
+      res.status(200).json(result)
+    }
+  })
 }
 
+exports.updateUser = (req, res, next) => {};
+
 //-------------------FUNCTION
-const addUser = (values,res) => {
-    bcrypt
+const addUser = (values, res) => {
+  bcrypt
     .hash(values.password, 10)
     .then((hash) => {
-        const sql = "INSERT INTO users SET ?";
+      const sql = "INSERT INTO users SET ?";
       const value = {
         name: values.name,
         last_name: values.last_name,
@@ -122,35 +152,37 @@ const addUser = (values,res) => {
         password: hash,
         email: values.email,
       };
-    db.query(sql,value,(err,result) =>{
-        if(err){
-            res.status(500).send({error: err})
+      db.query(sql, value, (err, result) => {
+        if (err) {
+          res.status(500).send({ error: err });
         }
         setAccessDefault(res);
-    })})
-    .catch((err) => { res.status(500).send({error: err})})
-}
-const setAccessDefault = (res) => {
-    const sql = 'SELECT id FROM users ORDER By id DESC LIMIT 1';
-    db.query(sql,(err,result) => {
-        if(err){
-            res.status(500).send({error: err})
-        }
-        addDefaultAccess(result[0].id,res)
-    });
-}
-const addDefaultAccess = (idUser,res) => {
-    const value = {
-        id_user : idUser,
-        id_channel : 1
-    }
-    const sql = "INSERT INTO access SET ?";
-    db.query(sql,value,(err,result) =>{
-        if(err){
-            console.log(err)
-            res.status(500).send({error: err})
-        }
-        res.status(200).json({message : 'Success'})
-        
+      });
     })
-}
+    .catch((err) => {
+      res.status(500).send({ error: err });
+    });
+};
+const setAccessDefault = (res) => {
+  const sql = "SELECT id FROM users ORDER By id DESC LIMIT 1";
+  db.query(sql, (err, result) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    }
+    addDefaultAccess(result[0].id, res);
+  });
+};
+const addDefaultAccess = (idUser, res) => {
+  const value = {
+    id_user: idUser,
+    id_channel: 1,
+  };
+  const sql = "INSERT INTO access SET ?";
+  db.query(sql, value, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send({ error: err });
+    }
+    res.status(200).json({ message: "Success" });
+  });
+};

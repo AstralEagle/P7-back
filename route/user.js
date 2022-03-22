@@ -12,6 +12,8 @@ router.post('/login',verifInput,verifInput,control.login);
 router.get('/:id', control.getUser);
 router.delete('/:id',verifInput);
 router.put('/:id',verifInput,auth,control.updateUser);
+router.get('/:id/posts',auth,control.getPostByUser)
+router.get('/:id/likes',auth,control.getLikeByUser)
 
 module.exports = router;
 
