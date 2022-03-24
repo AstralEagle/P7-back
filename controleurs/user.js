@@ -137,6 +137,19 @@ exports.getPostByUser = (req, res, next) => {
   })
 }
 
+exports.getMyUser = (req, res, next) => {
+  const sql = 'SELECT name ,last_name ,op FROM users WHERE ?'
+  const value = {
+    id : req.headers.authorization.split(' ')[2]
+  }
+  db.query(sql, value, (err, result) => {
+    if(err){
+      console.log(err);
+      res.status(500).json({ error: err })
+    }
+  })
+}
+
 exports.updateUser = (req, res, next) => {};
 
 //-------------------FUNCTION

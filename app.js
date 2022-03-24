@@ -57,24 +57,12 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.get('/api/connect',auth,(req,res)=>{
         res.status(200).json({succes : "Connected"});
 })
+app.get('/api/connects',auth,(req,res)=>{
+  res.status(200).json({succes : "Connected"});
+})
 
 // Test Route
 app.post('/api/test',multer,(req,res, next)=>{
-  
-  const valeurs = req.file?
-  {
-    ...JSON.parse(req.body.message),
-    imageUrl : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  }:{...req.body};
-  console.log(valeurs)
-
-
-  if(req.file){
-    res.status(200).json({message : "test"})
-  }
-  else{
-    res.status(400).json({error : "test"})
-  }
 })
 
 
