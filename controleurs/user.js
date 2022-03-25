@@ -106,15 +106,15 @@ exports.getLikeByUser = (req, res, next) => {
   const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id'
   const value = [{
     'likes.id_user': req.headers.authorization.split(" ")[2]
-  },{
-    'likes.id_user' : req.params.id
+  }, {
+    'likes.id_user': req.params.id
   }]
   db.query(sql, value, (err, result) => {
-    if(err){
+    if (err) {
       console.log(err);
       res.status(500).json({ error: err });
     }
-    else{
+    else {
       res.status(200).json(result)
     }
   })
@@ -123,15 +123,15 @@ exports.getPostByUser = (req, res, next) => {
   const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id'
   const value = [{
     'likes.id_user': req.headers.authorization.split(" ")[2]
-  },{
-    'post.id_user' : req.params.id
+  }, {
+    'post.id_user': req.params.id
   }]
   db.query(sql, value, (err, result) => {
     if (err) {
       console.log(err);
-      res.status(500).json({ error: err})
+      res.status(500).json({ error: err })
     }
-    else{
+    else {
       res.status(200).json(result)
     }
   })
@@ -140,17 +140,26 @@ exports.getPostByUser = (req, res, next) => {
 exports.getMyUser = (req, res, next) => {
   const sql = 'SELECT name ,last_name ,op FROM users WHERE ?'
   const value = {
-    id : req.headers.authorization.split(' ')[2]
+    id: req.headers.authorization.split(' ')[2]
   }
   db.query(sql, value, (err, result) => {
-    if(err){
+    if (err) {
       console.log(err);
       res.status(500).json({ error: err })
+    }
+    else {
+      if (result[0].op === 1) {
+        result[0].op = true;
+      }
+      else{
+        result[0].op = false;
+      }
+      res.status(200).json(result[0])
     }
   })
 }
 
-exports.updateUser = (req, res, next) => {};
+exports.updateUser = (req, res, next) => { };
 
 //-------------------FUNCTION
 const addUser = (values, res) => {
