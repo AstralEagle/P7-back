@@ -61,7 +61,7 @@ exports.getUser = (req, res, next) => {
   if (!req.params.id) {
     res.status(400).json({ error: "Information introuvable" });
   } else {
-    const sql = "SELECT name, last_name, post, date FROM users WHERE ?";
+    const sql = "SELECT name, last_name, date FROM users WHERE ?";
     const value = {
       id: req.params.id,
     };
