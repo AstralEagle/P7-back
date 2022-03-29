@@ -10,7 +10,7 @@ const control = require("../controleurs/post");
 router.get('/',auth,control.getMessage);
 router.get('/:id',auth,control.getPostByID)
 router.post('/',auth,verifInput,control.postMessage);
-router.delete('/:id',auth,control.deleteMessage);
+router.delete('/:id',auth,control.verifiUserPost,control.deleteMessage);
 router.post('/:id/like',auth,verifInput,control.likeMessage);
 router.post('/:id/comment',auth,control.commentMessage);
 router.get('/comment/:id',auth,control.getAllCommentsByID);

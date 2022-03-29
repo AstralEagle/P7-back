@@ -65,8 +65,40 @@ exports.postMessage = (req, res, next) => {
     }
 }
 
-exports.deleteMessage = (req, res, next) => {
+exports.verifiUserPost = (req, res, next) => {
+    if(!req.params.id){
+        res.status(400).json({error : 'Information manquante'})
+    }
+    else{
+        const sql = 'SELECT id,id_use FROM post WHERE ?'
+        const value = {id : req.params.id}
+        db.query(sql,value,(err,result) => {
+            if(err) {
+                console.log(err);
+                res.status(500).json({error : err})
+            }
+            else if(result[0]){
+                next();
+            }
+            else{
+                res.status(400).json({error : 'Post introuvable'})
+            }
+        })
+    }
 
+}
+exports.deleteMessage = (req,res,next) => {
+    const sql = 'DELETE INTO post WHERE ?'
+    const value = {id : req.params.id}
+    db.query(sql,value,(err,result) => {
+        if(err){
+            console.log(err)
+            res.status(500).json({error : err})
+        }
+        else{
+            res.status(200).json({message : 'Post Deleted'})
+        }
+    })
 }
 exports.likeMessage = (req, res, next) => {
     if (!req.body.userID) {

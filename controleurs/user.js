@@ -57,6 +57,26 @@ exports.login = (req, res, next) => {
     });
   }
 };
+exports.deleteUser = (req,res,next) => {
+  if(!req.params.id){
+    res.status(400).json({error : "Information introuvable"})
+  }
+  else{
+    if(req.params.id === req.headers.split(' ')[2]){
+      const sql = 'DELETE INTO users WHERE ?'
+      const value = {id : req.params.id}
+      db.query(sql,value,(err,result) => {
+        if(err){
+          console.log(err)
+          res.status(500),json({error : err})
+        }else{
+          res.status(200).json({message : 'Succes'})
+        }
+      })
+    }
+  }
+}
+
 exports.getUser = (req, res, next) => {
   if (!req.params.id) {
     res.status(400).json({ error: "Information introuvable" });

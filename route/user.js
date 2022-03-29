@@ -9,7 +9,7 @@ const control = require("../controleurs/user");
 
 router.post('/signup',verifInput,control.signup);
 router.post('/login',verifInput,verifInput,control.login);
-router.delete('/:id',verifInput);
+router.delete('/:id',auth,control.deleteUser);
 
 router.get('/',auth,control.getMyUser)
 router.get('/:id', control.getUser);
