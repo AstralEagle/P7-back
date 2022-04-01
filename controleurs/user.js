@@ -81,18 +81,21 @@ exports.getUser = (req, res, next) => {
   if (!req.params.id) {
     res.status(400).json({ error: "Information introuvable" });
   } else {
-    const sql = "SELECT name, last_name, date FROM users WHERE ?";
+    const sql = "SELECT users.name,users.last_name, users.date, COUNT(distinct post.id) AS nbrPost, COUNT(distinct likes.id) AS nbrLike FROM users LEFT JOIN post on users.id = post.id_user LEFT JOIN likes ON users.id = likes.id_user WHERE ?";
     const value = {
-      id: req.params.id,
+      'users.id': req.params.id,
     };
     db.query(sql, value, (err, result) => {
       if (!result[0]) {
         console.log(err);
         res.status(500).json({ error: "Utilisateur non trouvé" });
       } else {
+        result[0].date = result[0].date.split(' ')[0].split('-')
+        console.log(result[0])
         res.status(200).json(result[0]);
       }
     });
+    
   }
 };
 exports.deleteUser = (req, res, next) => {
