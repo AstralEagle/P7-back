@@ -4,7 +4,7 @@ const db = database.getDB();
 
 exports.getMessage = (req, res, next) => {
 
-    const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id GROUP BY post.id'
+    const sql = 'SELECT post.id,post.name,post.description,post.id_user as userID, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id GROUP BY post.id'
     console.log(req.headers.authorization)
     const userID = req.headers.authorization.split(" ")[2];
     const value = {"likes.id_user" : userID}
@@ -20,7 +20,7 @@ exports.getMessage = (req, res, next) => {
 }
 exports.getPostByID = (req, res, next) => {
 
-    const sql = 'SELECT post.id,post.name,post.description, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id;'
+    const sql = 'SELECT post.id,post.name,post.description,post.id_user as userID, users.name as userName, users.last_name as userlastName,COUNT(DISTINCT likes.id) as nbrLike, COUNT(DISTINCT comments.id) as nbrComment,( select count(likes.id) from likes where likes.id_post=post.id AND ? ) as isTrue FROM post LEFT JOIN likes on post.id = likes.id_post LEFT JOIN comments on post.id = comments.id_post JOIN users on post.id_user = users.id WHERE ? GROUP BY post.id;'
     const userID = req.headers.authorization.split(" ")[2];
     const value = [{"likes.id_user" : userID},{'post.id': req.params.id}]
 

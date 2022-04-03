@@ -57,25 +57,48 @@ exports.login = (req, res, next) => {
     });
   }
 };
-exports.deleteUser = (req,res,next) => {
-  if(!req.params.id){
-    res.status(400).json({error : "Information introuvable"})
-  }
-  else{
-    if(req.params.id === req.headers.split(' ')[2]){
-      const sql = 'DELETE INTO users WHERE ?'
-      const value = {id : req.params.id}
-      db.query(sql,value,(err,result) => {
-        if(err){
-          console.log(err)
-          res.status(500),json({error : err})
-        }else{
-          res.status(200).json({message : 'Succes'})
+exports.verifDeleteUser = (req, res, next) => {
+  if (!req.body.userID) {
+    res.status(400).json({ error: "Information introuvable" });
+  } else {
+    if (req.params.id === req.body.userID) {
+      next();
+    } 
+    else {
+      const sql = "SELECT * FROM users WHERE ?";
+      const value = {
+        id: req.body.userID,
+      };
+      db.query(sql, value, (err, result) => {
+        if (err) {
+          res.status(500).send({ error: err });
         }
-      })
+        else if (result[0].op == 1) {
+          next();
+        }
+        else{
+          res.status(400).json({ error : 'Action impossible'})
+        }
+      });
     }
   }
-}
+};
+exports.deleteUser = (req, res, next) => {
+  const sql = "DELETE FROM users WHERE id = ?";
+  const value = req.params.id;
+  db.query(sql, value, (err, result) => {
+    if (err) {
+      res.status(400).send({ error: err });
+    } else {
+      res.status(200).json({ message: "Supression effectué" });
+    }
+  });
+};
+
+
+
+
+
 
 exports.getUser = (req, res, next) => {
   if (!req.params.id) {
@@ -86,42 +109,17 @@ exports.getUser = (req, res, next) => {
       'users.id': req.params.id,
     };
     db.query(sql, value, (err, result) => {
-      if (!result[0]) {
+      console.log(result[0])
+      if (!result[0].name) {
         console.log(err);
         res.status(500).json({ error: "Utilisateur non trouvé" });
       } else {
-        result[0].date = result[0].date.split(' ')[0].split('-')
+        result[0].date = result[0].date.split(' ')[0].replace('-','/').replace('-','/');
         console.log(result[0])
         res.status(200).json(result[0]);
       }
     });
     
-  }
-};
-exports.deleteUser = (req, res, next) => {
-  if (!req.body.userID) {
-    res.status(400).json({ error: "Information introuvable" });
-  } else {
-    const sqlOne = "SELECT * FROM users WHERE id = ?";
-    const values = {
-      id: req.body.userID,
-    };
-    db.query(sqlOne, values, (err, result) => {
-      if (err) {
-        res.status(400).send({ error: err });
-      }
-      if (result[0].id == res.params.id || result[0].op == 1) {
-        const sqlDelet = "DELETE FROM users WHERE id = ?";
-        const values = req.params.id;
-        db.query(sqlDelet, values, (err, result) => {
-          if (err) {
-            res.status(400).send({ error: err });
-          } else {
-            res.status(200).json({ message: "Supression effectué" });
-          }
-        });
-      }
-    });
   }
 };
 
@@ -181,8 +179,6 @@ exports.getMyUser = (req, res, next) => {
     }
   })
 }
-
-exports.updateUser = (req, res, next) => { };
 
 //-------------------FUNCTION
 const addUser = (values, res) => {
