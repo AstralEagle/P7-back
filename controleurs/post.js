@@ -65,12 +65,12 @@ exports.postMessage = (req, res, next) => {
     }
 }
 
-exports.verifiUserPost = (req, res, next) => {
+exports.verifUserPost = (req, res, next) => {
     if(!req.params.id){
         res.status(400).json({error : 'Information manquante'})
     }
     else{
-        const sql = 'SELECT id,id_use FROM post WHERE ?'
+        const sql = 'SELECT id_user FROM post WHERE ?'
         const value = {id : req.params.id}
         db.query(sql,value,(err,result) => {
             if(err) {
@@ -78,7 +78,12 @@ exports.verifiUserPost = (req, res, next) => {
                 res.status(500).json({error : err})
             }
             else if(result[0]){
-                next();
+                console.log(result[0])
+                if(result[0].id_user == req.headers.authorization.split(' ')[2]){
+                next()
+                }else{
+                res.status(400).json({error : 'User is not authorized'})
+                }
             }
             else{
                 res.status(400).json({error : 'Post introuvable'})
