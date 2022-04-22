@@ -1,5 +1,11 @@
-Pour toute utilisation de cette aplication express,
-Merci de créer un fichier .env dans le dossier config avec comme varriable:
+Installation:
+
+dans une console ouvert a la racine du projet tapez:
+-npm i
+-npm start
+
+Ensuite import les fichiers SQL du dossier DataBase dans votre base de données relationnel.
+Et pour finir créer un fichier .env dans le dossier config du projet avec comme donné :
 PORT = {port utilisé pour heberger le serveur}
 DBHOST= {adress Ip de la base de donné SQL}
 DBPORT= {port de la base SQL}

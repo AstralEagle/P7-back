@@ -12,7 +12,7 @@ exports.signup = (req, res, next) => {
     !req.body.last_name |
     !req.body.email
   ) {
-    res.status(400).send({ error: "Missing input" });
+    res.status(400).send({ error: "Veuillez remplir tout les champs" });
   } else {
     const sql = "SELECT * FROM users WHERE ?";
     const value = { email: req.body.email };
@@ -30,7 +30,7 @@ exports.signup = (req, res, next) => {
 };
 exports.login = (req, res, next) => {
   if (!req.body.email | !req.body.password) {
-    res.status(400).send({ error: "Information introuvable" });
+    res.status(400).send({ error: "Email ou mot de passe incorrect" });
   } else {
     const sql = "SELECT password, id FROM users WHERE ?";
     const values = { email: req.body.email };
@@ -39,19 +39,24 @@ exports.login = (req, res, next) => {
         res.status(400).send({ error: "Utilisateur introuvable" });
       } else {
         user = result[0];
-        console.log(user);
+        console.log(user,req.body.password);
         bcrypt
           .compare(req.body.password, user.password)
-          .then((result) => {
-            res.status(200).json({
-              userID: user.id,
-              token: jwt.sign({ userID: user.id }, process.env.KEYTOKEN, {
-                expiresIn: "24h",
-              }),
-            });
+          .then((valid) => {
+            if(valid){
+              res.status(200).json({
+                userID: user.id,
+                token: jwt.sign({ userID: user.id }, process.env.KEYTOKEN, {
+                  expiresIn: "24h",
+                }),
+              });
+            }
+            else
+            res.status(400).json({ error: "Mot de passe incorrect" })
           })
           .catch((err) =>
-            res.status(400).json({ error: "Mot de passe incorrect" })
+          res.status(400).json({ error: "Mot de passe incorrect" })
+
           );
       }
     });

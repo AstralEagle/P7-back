@@ -17,4 +17,3 @@ router.get('/:id/posts',auth,control.getPostByUser)
 router.get('/:id/likes',auth,control.getLikeByUser)
 
 module.exports = router;
-
